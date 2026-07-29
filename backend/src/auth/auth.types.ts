@@ -5,3 +5,14 @@ export interface TokenRespuesta {
   token_type: 'Bearer';
   expires_in: string;
 }
+
+export interface JwtPayload {
+  sub: string;
+  usuario: string;
+  iat?: number;
+  exp?: number;
+}
+
+export interface UsuarioAutenticado {
+  usuario: string;
+}

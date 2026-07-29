@@ -15,6 +15,7 @@ import { AppModule } from './../src/app.module';
 import { configurarAplicacion } from './../src/common/app-setup';
 import { JwtAuthGuard } from './../src/auth/guards/jwt-auth.guard';
 import { UsuarioAutenticado } from './../src/auth/auth.types';
+import { parsearCredenciales } from './../src/auth/auth.service';
 
 @Controller('recurso-protegido')
 class RecursoProtegidoController {
@@ -45,14 +46,16 @@ describe('JwtAuthGuard (e2e)', () => {
 
     const configService = app.get(ConfigService);
     jwtService = app.get(JwtService);
-    usuario = configService.getOrThrow<string>('AUTH_USUARIO');
+
+    const credenciales = parsearCredenciales(
+      configService.getOrThrow<string>('AUTH_USUARIOS'),
+    );
+    const [[usuarioConfigurado, password]] = [...credenciales];
+    usuario = usuarioConfigurado;
 
     const respuesta = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({
-        usuario,
-        password: configService.getOrThrow<string>('AUTH_PASSWORD'),
-      })
+      .send({ usuario, password })
       .expect(200);
 
     token = (respuesta.body as { access_token: string }).access_token;

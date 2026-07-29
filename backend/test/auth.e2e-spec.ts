@@ -5,12 +5,14 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 import { configurarAplicacion } from './../src/common/app-setup';
+import { parsearCredenciales } from './../src/auth/auth.service';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication<App>;
   let usuario: string;
   let password: string;
   let expiracion: string;
+  let credenciales: ReadonlyMap<string, string>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,8 +24,11 @@ describe('AuthController (e2e)', () => {
     await app.init();
 
     const configService = app.get(ConfigService);
-    usuario = configService.getOrThrow<string>('AUTH_USUARIO');
-    password = configService.getOrThrow<string>('AUTH_PASSWORD');
+    credenciales = parsearCredenciales(
+      configService.getOrThrow<string>('AUTH_USUARIOS'),
+    );
+
+    [[usuario, password]] = [...credenciales];
     expiracion = configService.get<string>('JWT_EXPIRES_IN', '8h');
   });
 
@@ -42,6 +47,33 @@ describe('AuthController (e2e)', () => {
       token_type: 'Bearer',
       expires_in: expiracion,
     });
+  });
+
+  it('POST /auth/login acepta todos los usuarios configurados', async () => {
+    for (const [usuarioConfigurado, passwordConfigurada] of credenciales) {
+      const respuesta = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ usuario: usuarioConfigurado, password: passwordConfigurada })
+        .expect(200);
+
+      expect(respuesta.body).toHaveProperty('access_token', expect.any(String));
+    }
+  });
+
+  it('POST /auth/login rechaza la password de otro usuario configurado', async () => {
+    const usuarios = [...credenciales.keys()];
+
+    if (usuarios.length < 2) {
+      return;
+    }
+
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        usuario: usuarios[0],
+        password: credenciales.get(usuarios[1]),
+      })
+      .expect(401);
   });
 
   it('POST /auth/login responde 401 con credenciales incorrectas', async () => {

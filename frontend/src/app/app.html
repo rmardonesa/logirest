@@ -1,0 +1,27 @@
+<div class="aplicacion">
+  <header class="barra">
+    <div class="barra-contenido">
+      <a class="marca" routerLink="/resumen">logirest</a>
+
+      <nav class="navegacion">
+        <a routerLink="/resumen" routerLinkActive="activo">Resumen</a>
+        <a routerLink="/solicitudes" routerLinkActive="activo">Solicitudes</a>
+      </nav>
+
+      <button
+        type="button"
+        class="alternar-tema"
+        [attr.aria-label]="
+          tema() === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
+        "
+        (click)="alternarTema()"
+      >
+        {{ tema() === 'dark' ? 'Claro' : 'Oscuro' }}
+      </button>
+    </div>
+  </header>
+
+  <main class="contenido">
+    <router-outlet />
+  </main>
+</div>

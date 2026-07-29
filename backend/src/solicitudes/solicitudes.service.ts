@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cliente } from '../clientes/entities/cliente.entity';
 import { Solicitud } from './entities/solicitud.entity';
-import { ESTADO_INICIAL } from './solicitud.constants';
+import { ESTADO_CIERRE, ESTADO_INICIAL } from './solicitud.constants';
 import { CrearSolicitudDto } from './dto/crear-solicitud.dto';
 import { ActualizarSolicitudDto } from './dto/actualizar-solicitud.dto';
 import { FiltrarSolicitudesDto } from './dto/filtrar-solicitudes.dto';
@@ -116,6 +116,14 @@ export class SolicitudesService {
     const solicitud = await this.obtenerPorId(id);
 
     return this.solicitudes.save(aplicarCambiosDefinidos(solicitud, cambios));
+  }
+
+  async cerrar(id: number): Promise<Solicitud> {
+    const solicitud = await this.obtenerPorId(id);
+
+    solicitud.estado = ESTADO_CIERRE;
+
+    return this.solicitudes.save(solicitud);
   }
 
   async eliminar(id: number): Promise<void> {

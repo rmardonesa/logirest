@@ -9,10 +9,12 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SolicitudesService } from '../../../core/services/solicitudes.service';
 import {
   ESTADOS_SOLICITUD,
+  ESTADO_CIERRE,
   EstadoSolicitud,
   OrdenFecha,
   Solicitud,
@@ -25,7 +27,7 @@ const MILISEGUNDOS_DEBOUNCE = 300;
 
 @Component({
   selector: 'app-listado-solicitudes',
-  imports: [DatePipe, EstadoBadge, Paginador],
+  imports: [DatePipe, RouterLink, EstadoBadge, Paginador],
   templateUrl: './listado-solicitudes.html',
   styleUrl: './listado-solicitudes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,22 +38,24 @@ export class ListadoSolicitudes {
   private readonly terminoTecleado = new Subject<string>();
 
   protected readonly estados = ESTADOS_SOLICITUD;
+  protected readonly estadoCierre = ESTADO_CIERRE;
 
   protected readonly search = signal('');
   protected readonly estado = signal<EstadoSolicitud | ''>('');
   protected readonly order = signal<OrdenFecha>('DESC');
   protected readonly page = signal(1);
   protected readonly limit = signal(10);
+  protected readonly recarga = signal(0);
 
   protected readonly resultado = signal<RespuestaPaginada<Solicitud> | null>(
     null,
   );
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly operando = signal<number | null>(null);
+  protected readonly pendienteDeBorrar = signal<number | null>(null);
 
-  protected readonly solicitudes = computed(
-    () => this.resultado()?.data ?? [],
-  );
+  protected readonly solicitudes = computed(() => this.resultado()?.data ?? []);
   protected readonly meta = computed(() => this.resultado()?.meta ?? null);
   protected readonly sinResultados = computed(
     () => !this.cargando() && !this.error() && this.solicitudes().length === 0,
@@ -70,13 +74,14 @@ export class ListadoSolicitudes {
       });
 
     effect(() => {
-      this.cargar({
-        search: this.search(),
-        estado: this.estado(),
-        order: this.order(),
-        page: this.page(),
-        limit: this.limit(),
-      });
+      this.search();
+      this.estado();
+      this.order();
+      this.page();
+      this.limit();
+      this.recarga();
+
+      this.cargarListado();
     });
   }
 
@@ -98,18 +103,68 @@ export class ListadoSolicitudes {
     this.page.set(pagina);
   }
 
-  private cargar(filtros: {
-    search: string;
-    estado: EstadoSolicitud | '';
-    order: OrdenFecha;
-    page: number;
-    limit: number;
-  }): void {
+  protected cerrar(id: number): void {
+    this.operando.set(id);
+
+    this.solicitudesService
+      .cerrar(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.operando.set(null);
+          this.refrescar();
+        },
+        error: () => {
+          this.error.set('No se pudo cerrar la solicitud.');
+          this.operando.set(null);
+        },
+      });
+  }
+
+  protected pedirConfirmacion(id: number): void {
+    this.pendienteDeBorrar.set(id);
+  }
+
+  protected cancelarBorrado(): void {
+    this.pendienteDeBorrar.set(null);
+  }
+
+  protected eliminar(id: number): void {
+    this.operando.set(id);
+
+    this.solicitudesService
+      .eliminar(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.pendienteDeBorrar.set(null);
+          this.operando.set(null);
+          this.refrescar();
+        },
+        error: () => {
+          this.error.set('No se pudo eliminar la solicitud.');
+          this.pendienteDeBorrar.set(null);
+          this.operando.set(null);
+        },
+      });
+  }
+
+  private refrescar(): void {
+    this.recarga.update((valor) => valor + 1);
+  }
+
+  private cargarListado(): void {
     this.cargando.set(true);
     this.error.set(null);
 
     this.solicitudesService
-      .listar(filtros)
+      .listar({
+        search: this.search(),
+        estado: this.estado(),
+        order: this.order(),
+        page: this.page(),
+        limit: this.limit(),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (respuesta) => {

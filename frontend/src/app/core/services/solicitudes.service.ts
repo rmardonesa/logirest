@@ -2,7 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { FiltrosSolicitudes, Solicitud } from '../models/solicitud.model';
+import {
+  ActualizarSolicitud,
+  CrearSolicitud,
+  FiltrosSolicitudes,
+  Solicitud,
+} from '../models/solicitud.model';
 import { RespuestaPaginada } from '../models/paginacion.model';
 
 @Injectable({ providedIn: 'root' })
@@ -29,5 +34,21 @@ export class SolicitudesService {
 
   obtenerPorId(id: number): Observable<Solicitud> {
     return this.http.get<Solicitud>(`${this.recurso}/${id}`);
+  }
+
+  crear(datos: CrearSolicitud): Observable<Solicitud> {
+    return this.http.post<Solicitud>(this.recurso, datos);
+  }
+
+  actualizar(id: number, cambios: ActualizarSolicitud): Observable<Solicitud> {
+    return this.http.put<Solicitud>(`${this.recurso}/${id}`, cambios);
+  }
+
+  cerrar(id: number): Observable<Solicitud> {
+    return this.http.patch<Solicitud>(`${this.recurso}/${id}/cerrar`, {});
+  }
+
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.recurso}/${id}`);
   }
 }

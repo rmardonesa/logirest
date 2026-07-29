@@ -1,0 +1,118 @@
+.autocomplete {
+  position: relative;
+}
+
+.autocomplete-input {
+  width: 100%;
+  padding: 10px 14px;
+  color: var(--color-texto);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  font-size: 14px;
+}
+
+.autocomplete-input:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.estado {
+  padding: 8px 12px;
+  color: var(--color-texto-suave);
+  font-size: 13px;
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-top: 0;
+  border-radius: 0 0 var(--radio) var(--radio);
+}
+
+.lista {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-top: 0;
+  border-radius: 0 0 var(--radio) var(--radio);
+  box-shadow: var(--sombra-tarjeta);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.opcion {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.opcion:hover {
+  background-color: var(--color-superficie-suave);
+}
+
+.opcion-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.opcion-detalle {
+  font-size: 12px;
+  color: var(--color-texto-suave);
+}
+
+.seleccionado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--color-superficie-suave);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+}
+
+.seleccionado-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.seleccionado-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.seleccionado-detalle {
+  font-size: 12px;
+  color: var(--color-texto-suave);
+}
+
+.limpiar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--color-texto-suave);
+  background-color: transparent;
+  border: 1px solid var(--color-borde);
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.limpiar:hover {
+  border-color: var(--color-rechazada-texto);
+  color: var(--color-rechazada-texto);
+}

@@ -34,12 +34,19 @@ export class DashboardService {
     const finalizadas = porEstado.get('Finalizada') ?? 0;
     const rechazadas = porEstado.get('Rechazada') ?? 0;
 
+    const recientes = await this.solicitudes.find({
+      relations: { cliente: true },
+      order: { createdAt: 'DESC' },
+      take: 5,
+    });
+
     return {
       total: pendientes + enProceso + finalizadas + rechazadas,
       pendientes,
       enProceso,
       finalizadas,
       rechazadas,
+      recientes,
     };
   }
 }

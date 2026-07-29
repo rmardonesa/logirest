@@ -35,6 +35,30 @@ export const routes: Routes = [
             './features/solicitudes/listado-solicitudes/listado-solicitudes'
           ).then((modulo) => modulo.ListadoSolicitudes),
       },
+      {
+        path: 'prospectos',
+        title: 'Prospectos | logirest',
+        loadComponent: () =>
+          import('./features/prospectos/prospectos').then(
+            (modulo) => modulo.Prospectos,
+          ),
+      },
+      {
+        path: 'solicitudes/nueva',
+        title: 'Nueva solicitud | logirest',
+        loadComponent: () =>
+          import(
+            './features/solicitudes/formulario-solicitud/formulario-solicitud'
+          ).then((modulo) => modulo.FormularioSolicitud),
+      },
+      {
+        path: 'solicitudes/:id/editar',
+        title: 'Editar solicitud | logirest',
+        loadComponent: () =>
+          import(
+            './features/solicitudes/formulario-solicitud/formulario-solicitud'
+          ).then((modulo) => modulo.FormularioSolicitud),
+      },
     ],
   },
   {

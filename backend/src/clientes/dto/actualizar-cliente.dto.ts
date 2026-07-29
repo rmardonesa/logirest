@@ -1,19 +1,11 @@
-import {
-  IsEmail,
-  IsIn,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-  Validate,
-} from 'class-validator';
+import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength, Validate } from 'class-validator';
 import { RutValidoConstraint } from '../validators/rut.validator';
 
 export const TIPOS_CLIENTE = ['persona natural', 'empresa'] as const;
 
 export type TipoCliente = (typeof TIPOS_CLIENTE)[number];
 
-export class CrearClienteDto {
+export class ActualizarClienteDto {
   @IsOptional()
   @Validate(RutValidoConstraint)
   rut?: string;

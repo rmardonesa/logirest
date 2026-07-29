@@ -39,5 +39,39 @@
         variante="rechazada"
       />
     </div>
+
+    @if (datos.recientes.length) {
+      <section class="recientes">
+        <h2>Solicitudes recientes</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Numero</th>
+              <th>Cliente</th>
+              <th>Tipo</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (solicitud of datos.recientes; track solicitud.id) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/solicitudes', solicitud.id, 'editar']">{{
+                    solicitud.numero
+                  }}</a>
+                </td>
+                <td>{{ solicitud.cliente.nombre }}</td>
+                <td>{{ solicitud.tipoSolicitud }}</td>
+                <td>
+                  <app-estado-badge [estado]="solicitud.estado" />
+                </td>
+                <td>{{ solicitud.fecha }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
   }
 </section>

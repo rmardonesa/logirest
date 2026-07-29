@@ -1,6 +1,7 @@
 <section class="listado">
   <header class="encabezado">
     <h1>Solicitudes</h1>
+    <a class="boton-primario" routerLink="/solicitudes/nueva">Nueva solicitud</a>
   </header>
 
   <form class="filtros" (submit)="$event.preventDefault()">
@@ -55,6 +56,7 @@
             <th scope="col">Tipo</th>
             <th scope="col">Estado</th>
             <th scope="col">Descripcion</th>
+            <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -65,10 +67,42 @@
               <td>
                 <span class="cliente-nombre">{{ solicitud.cliente.nombre }}</span>
                 <span class="cliente-email">{{ solicitud.cliente.email }}</span>
+                @if (solicitud.cliente.telefono) {
+                  <span class="cliente-telefono">{{ solicitud.cliente.telefono }}</span>
+                }
               </td>
               <td>{{ solicitud.tipoSolicitud }}</td>
               <td><app-estado-badge [estado]="solicitud.estado" /></td>
               <td class="descripcion">{{ solicitud.descripcion }}</td>
+              <td class="acciones">
+                <a class="accion" routerLink="/solicitudes/{{ solicitud.id }}/editar">Editar</a>
+
+                @if (solicitud.estado !== estadoCierre) {
+                  <button
+                    type="button"
+                    class="accion"
+                    [disabled]="operando() === solicitud.id"
+                    (click)="cerrar(solicitud.id)"
+                  >
+                    {{ operando() === solicitud.id ? 'Cerrando...' : 'Cerrar' }}
+                  </button>
+                }
+
+                @if (pendienteDeBorrar() === solicitud.id) {
+                  <span class="confirmar">
+                    <span class="confirmar-texto">¿Eliminar?</span>
+                    <button type="button" class="accion accion-peligro" (click)="eliminar(solicitud.id)">Si</button>
+                    <button type="button" class="accion" (click)="cancelarBorrado()">No</button>
+                  </span>
+                } @else {
+                  <button
+                    type="button"
+                    class="accion accion-peligro"
+                    [disabled]="operando() === solicitud.id"
+                    (click)="pedirConfirmacion(solicitud.id)"
+                  >Eliminar</button>
+                }
+              </td>
             </tr>
           }
         </tbody>

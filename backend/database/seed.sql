@@ -1,12 +1,12 @@
-INSERT INTO clientes (rut, nombre, email, telefono) VALUES
-    ('12345678-5', 'Distribuidora Andes Limitada', 'contacto@distribuidoraandes.cl', '+56223456789'),
-    ('9876543-3', 'Comercial Puerto Norte SpA', 'operaciones@puertonorte.cl', '+56222345678'),
-    ('15678234-3', 'Camila Rojas Fuentes', 'camila.rojas@correo.cl', '+56987654321'),
-    ('7654321-6', 'Ferreteria El Maiten', 'ventas@elmaiten.cl', '+56412345678'),
-    ('18234567-9', 'Sebastian Muller Vega', 'sebastian.muller@correo.cl', '+56976543210'),
-    ('20111222-2', 'Importadora Bahia Azul SpA', 'despachos@bahiaazul.cl', '+56322456789'),
-    ('16543210-K', 'Patricia Lagos Herrera', 'patricia.lagos@correo.cl', '+56965432187'),
-    ('13579246-2', 'Logistica Valle Central Limitada', 'soporte@vallecentral.cl', '+56712345678')
+INSERT INTO clientes (rut, nombre, email, telefono, tipo) VALUES
+    ('12345678-5', 'Distribuidora Andes Limitada', 'contacto@distribuidoraandes.cl', '+56223456789', 'empresa'),
+    ('9876543-3', 'Comercial Puerto Norte SpA', 'operaciones@puertonorte.cl', '+56222345678', 'empresa'),
+    ('15678234-3', 'Camila Rojas Fuentes', 'camila.rojas@correo.cl', '+56987654321', 'persona natural'),
+    ('7654321-6', 'Ferreteria El Maiten', 'ventas@elmaiten.cl', '+56412345678', 'empresa'),
+    ('18234567-9', 'Sebastian Muller Vega', 'sebastian.muller@correo.cl', '+56976543210', 'persona natural'),
+    ('20111222-2', 'Importadora Bahia Azul SpA', 'despachos@bahiaazul.cl', '+56322456789', 'empresa'),
+    ('16543210-K', 'Patricia Lagos Herrera', 'patricia.lagos@correo.cl', '+56965432187', 'persona natural'),
+    ('13579246-2', 'Logistica Valle Central Limitada', 'soporte@vallecentral.cl', '+56712345678', 'empresa')
 ON CONFLICT (rut) DO NOTHING;
 
 INSERT INTO solicitudes (numero, cliente_id, fecha, tipo_solicitud, estado, descripcion)

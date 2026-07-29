@@ -1,4 +1,4 @@
-.listado {
+.prospectos {
   display: flex;
   flex-direction: column;
   gap: var(--espacio);
@@ -78,7 +78,7 @@
 .tabla td {
   padding: 10px 14px;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
   border-bottom: 1px solid var(--color-borde);
 }
 
@@ -95,97 +95,101 @@
   border-bottom: none;
 }
 
-.numero {
-  font-variant-numeric: tabular-nums;
+.nombre {
+  font-weight: 600;
+}
+
+.tipo-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+  color: var(--color-en-proceso-texto);
+  background-color: var(--color-en-proceso-fondo);
 }
 
-.cliente-nombre {
-  display: block;
+.tipo-badge.empresa {
+  color: var(--color-finalizada-texto);
+  background-color: var(--color-finalizada-fondo);
 }
 
-.cliente-email {
-  display: block;
-  color: var(--color-texto-suave);
-  font-size: 13px;
-}
-
-.cliente-telefono {
-  display: block;
-  color: var(--color-texto-suave);
-  font-size: 12px;
-}
-
-.descripcion {
-  min-width: 200px;
-  color: var(--color-texto-suave);
-  max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.acciones {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.accion {
-  padding: 4px 10px;
-  font-size: 12px;
-  color: var(--color-texto);
-  background-color: transparent;
+.accion-editar {
+  padding: 4px 12px;
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
-  text-decoration: none;
+  background-color: transparent;
+  color: var(--color-enlace);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.accion:hover:not(:disabled) {
-  border-color: var(--color-primario);
-  color: var(--color-primario);
+.accion-editar:hover {
+  background-color: var(--color-superficie-suave);
 }
 
-.accion:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.fila-edicion td {
+  padding: 0;
+  background-color: var(--color-superficie-suave);
 }
 
-.accion-peligro {
-  color: var(--color-rechazada-texto);
+.formulario-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
 }
 
-.accion-peligro:hover:not(:disabled) {
-  border-color: var(--color-rechazada-texto);
-  color: var(--color-rechazada-texto);
+.fila-campos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.confirmar {
-  display: inline-flex;
-  gap: 4px;
-  align-items: center;
+.fila-campos .campo {
+  flex: 1 1 160px;
 }
 
-.confirmar-texto {
+.error-campo {
+  margin: 0;
   font-size: 12px;
   color: var(--color-rechazada-texto);
-  font-weight: 600;
+}
+
+.acciones-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .boton-primario {
-  padding: 9px 18px;
-  color: var(--color-primario-contraste);
-  background-color: var(--color-primario);
-  border: 1px solid var(--color-primario);
+  padding: 8px 20px;
+  border: none;
   border-radius: var(--radio);
-  font-weight: 600;
-  text-decoration: none;
+  background-color: var(--color-accion);
+  color: #fff;
   font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.boton-primario:hover {
-  background-color: var(--color-primario-hover);
+.boton-primario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.boton-secundario {
+  padding: 8px 20px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background-color: transparent;
+  color: var(--color-texto);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.boton-secundario:hover {
+  background-color: var(--color-superficie-suave);
 }

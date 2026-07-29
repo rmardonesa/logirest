@@ -1,0 +1,82 @@
+<section class="listado">
+  <header class="encabezado">
+    <h1>Solicitudes</h1>
+  </header>
+
+  <form class="filtros" (submit)="$event.preventDefault()">
+    <label class="campo campo-busqueda">
+      <span>Buscar</span>
+      <input
+        type="search"
+        placeholder="Numero, descripcion, cliente o email"
+        (input)="buscar($any($event.target).value)"
+      />
+    </label>
+
+    <label class="campo">
+      <span>Estado</span>
+      <select (change)="filtrarPorEstado($any($event.target).value)">
+        <option value="">Todos</option>
+        @for (opcion of estados; track opcion) {
+          <option [value]="opcion">{{ opcion }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="campo">
+      <span>Fecha</span>
+      <select (change)="cambiarOrden($any($event.target).value)">
+        <option value="DESC">Mas recientes primero</option>
+        <option value="ASC">Mas antiguas primero</option>
+      </select>
+    </label>
+  </form>
+
+  @if (error(); as mensaje) {
+    <p class="aviso aviso-error">{{ mensaje }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="aviso">Cargando solicitudes...</p>
+  }
+
+  @if (sinResultados()) {
+    <p class="aviso">No hay solicitudes que coincidan con la busqueda.</p>
+  }
+
+  @if (solicitudes().length > 0) {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Numero</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Descripcion</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (solicitud of solicitudes(); track solicitud.id) {
+            <tr>
+              <td class="numero">{{ solicitud.numero }}</td>
+              <td>{{ solicitud.fecha | date: 'dd-MM-yyyy' }}</td>
+              <td>
+                <span class="cliente-nombre">{{ solicitud.cliente.nombre }}</span>
+                <span class="cliente-email">{{ solicitud.cliente.email }}</span>
+              </td>
+              <td>{{ solicitud.tipoSolicitud }}</td>
+              <td><app-estado-badge [estado]="solicitud.estado" /></td>
+              <td class="descripcion">{{ solicitud.descripcion }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (meta(); as paginacion) {
+    <app-paginador [meta]="paginacion" (paginaSeleccionada)="cambiarPagina($event)" />
+  }
+</section>

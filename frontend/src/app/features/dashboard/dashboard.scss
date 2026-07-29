@@ -1,0 +1,31 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio);
+}
+
+h1 {
+  font-size: 24px;
+}
+
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--espacio);
+}
+
+.aviso {
+  margin: 0;
+  padding: var(--espacio);
+  color: var(--color-texto-suave);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  text-align: center;
+}
+
+.aviso-error {
+  color: var(--color-rechazada-texto);
+  background-color: var(--color-rechazada-fondo);
+  border-color: var(--color-rechazada-texto);
+}

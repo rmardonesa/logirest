@@ -1,0 +1,27 @@
+<nav class="paginador" aria-label="Paginacion de resultados">
+  <p class="resumen">
+    Mostrando {{ desde() }} a {{ hasta() }} de {{ meta().total }}
+  </p>
+
+  <div class="controles">
+    <button
+      type="button"
+      [disabled]="!hayAnterior()"
+      (click)="irA(meta().page - 1)"
+    >
+      Anterior
+    </button>
+
+    <span class="pagina">
+      Pagina {{ meta().page }} de {{ meta().totalPages }}
+    </span>
+
+    <button
+      type="button"
+      [disabled]="!haySiguiente()"
+      (click)="irA(meta().page + 1)"
+    >
+      Siguiente
+    </button>
+  </div>
+</nav>

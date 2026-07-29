@@ -4,7 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { buildDatabaseOptions } from './config/database.config';
 import { HealthModule } from './health/health.module';
+import { ClientesModule } from './clientes/clientes.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -17,7 +19,9 @@ import { SolicitudesModule } from './solicitudes/solicitudes.module';
       useFactory: buildDatabaseOptions,
     }),
     AuthModule,
+    ClientesModule,
     SolicitudesModule,
+    DashboardModule,
     HealthModule,
   ],
 })

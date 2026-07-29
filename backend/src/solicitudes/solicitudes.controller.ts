@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -49,6 +50,12 @@ export class SolicitudesController {
     @Body() cambios: ActualizarSolicitudDto,
   ): Promise<Solicitud> {
     return this.solicitudesService.actualizar(id, cambios);
+  }
+
+  @Patch(':id/cerrar')
+  @UseGuards(JwtAuthGuard)
+  cerrar(@Param('id', ParseIntPipe) id: number): Promise<Solicitud> {
+    return this.solicitudesService.cerrar(id);
   }
 
   @Delete(':id')

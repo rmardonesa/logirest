@@ -1,5 +1,5 @@
-import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
+import { PaginacionDto } from '../../common/dto/paginacion.dto';
 import { ESTADOS_SOLICITUD } from '../solicitud.constants';
 import type { EstadoSolicitud } from '../solicitud.constants';
 
@@ -7,13 +7,7 @@ export const ORDENES = ['ASC', 'DESC'] as const;
 
 export type Orden = (typeof ORDENES)[number];
 
-export const PAGINA_POR_DEFECTO = 1;
-
-export const LIMITE_POR_DEFECTO = 10;
-
-export const LIMITE_MAXIMO = 100;
-
-export class FiltrarSolicitudesDto {
+export class FiltrarSolicitudesDto extends PaginacionDto {
   @IsOptional()
   @IsString({ message: 'search debe ser un texto' })
   search?: string;
@@ -27,17 +21,4 @@ export class FiltrarSolicitudesDto {
   @IsOptional()
   @IsIn(ORDENES, { message: 'order debe ser ASC o DESC' })
   order: Orden = 'DESC';
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'page debe ser un numero entero' })
-  @Min(1, { message: 'page debe ser mayor que cero' })
-  page: number = PAGINA_POR_DEFECTO;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'limit debe ser un numero entero' })
-  @Min(1, { message: 'limit debe ser mayor que cero' })
-  @Max(LIMITE_MAXIMO, { message: `limit no puede superar ${LIMITE_MAXIMO}` })
-  limit: number = LIMITE_POR_DEFECTO;
 }

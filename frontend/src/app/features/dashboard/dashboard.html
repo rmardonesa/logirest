@@ -1,0 +1,43 @@
+<section class="dashboard">
+  <header>
+    <h1>Resumen</h1>
+  </header>
+
+  @if (error(); as mensaje) {
+    <p class="aviso aviso-error">{{ mensaje }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="aviso">Cargando resumen...</p>
+  }
+
+  @if (resumen(); as datos) {
+    <div class="tarjetas">
+      <app-tarjeta-estadistica
+        etiqueta="Total de solicitudes"
+        [valor]="datos.total"
+        variante="neutra"
+      />
+      <app-tarjeta-estadistica
+        etiqueta="Pendientes"
+        [valor]="datos.pendientes"
+        variante="pendiente"
+      />
+      <app-tarjeta-estadistica
+        etiqueta="En proceso"
+        [valor]="datos.enProceso"
+        variante="en-proceso"
+      />
+      <app-tarjeta-estadistica
+        etiqueta="Finalizadas"
+        [valor]="datos.finalizadas"
+        variante="finalizada"
+      />
+      <app-tarjeta-estadistica
+        etiqueta="Rechazadas"
+        [valor]="datos.rechazadas"
+        variante="rechazada"
+      />
+    </div>
+  }
+</section>

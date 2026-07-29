@@ -364,6 +364,69 @@ describe('SolicitudesController (e2e)', () => {
     });
   });
 
+  describe('PATCH /solicitudes/:id/cerrar', () => {
+    it('responde 401 sin JWT', async () => {
+      await request(app.getHttpServer())
+        .patch('/solicitudes/1/cerrar')
+        .expect(401);
+    });
+
+    it('fuerza el estado a Finalizada sin recibir cuerpo', async () => {
+      const creada = await crearSolicitud({
+        clienteId: clienteExistente.id,
+        fecha: '2026-07-29',
+        tipoSolicitud: 'Reprogramacion',
+        descripcion: 'Solicitud que sera cerrada por el test',
+      }).expect(201);
+
+      const { id, numero } = creada.body as CuerpoSolicitud;
+      idsCreados.push(id);
+
+      const respuesta = await request(app.getHttpServer())
+        .patch(`/solicitudes/${id}/cerrar`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      const cuerpo = respuesta.body as CuerpoSolicitud;
+
+      expect(cuerpo.estado).toBe('Finalizada');
+      expect(cuerpo.numero).toBe(numero);
+      expect(cuerpo.tipoSolicitud).toBe('Reprogramacion');
+    });
+
+    it('cierra una solicitud que ya estaba en proceso', async () => {
+      const creada = await crearSolicitud({
+        clienteId: clienteExistente.id,
+        fecha: '2026-07-29',
+        tipoSolicitud: 'Retraso o extravio',
+        descripcion: 'Solicitud en proceso que sera cerrada',
+      }).expect(201);
+
+      const { id } = creada.body as CuerpoSolicitud;
+      idsCreados.push(id);
+
+      await request(app.getHttpServer())
+        .put(`/solicitudes/${id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ estado: 'En proceso' })
+        .expect(200);
+
+      const respuesta = await request(app.getHttpServer())
+        .patch(`/solicitudes/${id}/cerrar`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect((respuesta.body as CuerpoSolicitud).estado).toBe('Finalizada');
+    });
+
+    it('responde 404 si no existe', async () => {
+      await request(app.getHttpServer())
+        .patch('/solicitudes/999999/cerrar')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(404);
+    });
+  });
+
   describe('DELETE /solicitudes/:id', () => {
     it('responde 401 sin JWT', async () => {
       await request(app.getHttpServer()).delete('/solicitudes/1').expect(401);

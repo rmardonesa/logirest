@@ -40,6 +40,18 @@
       />
     </div>
 
+    <div class="graficos">
+      <section class="grafico">
+        <h2>Principales empresas por solicitudes</h2>
+        <app-grafico-dona [datos]="datos.topEmpresas" />
+      </section>
+
+      <section class="grafico">
+        <h2>Solicitudes por tipo</h2>
+        <app-grafico-barras [datos]="datos.porTipo" />
+      </section>
+    </div>
+
     @if (datos.recientes.length) {
       <section class="recientes">
         <h2>Solicitudes recientes</h2>

@@ -46,12 +46,43 @@ describe('DashboardController (e2e)', () => {
       'enProceso',
       'finalizadas',
       'pendientes',
+      'porTipo',
       'rechazadas',
       'recientes',
+      'topEmpresas',
       'total',
     ]);
     expect(resumen.total).toEqual(expect.any(Number));
     expect(Array.isArray(resumen.recientes)).toBe(true);
+  });
+
+  it('entrega los siete tipos de solicitud, incluso los que no tienen registros', async () => {
+    const respuesta = await request(app.getHttpServer())
+      .get('/dashboard')
+      .expect(200);
+
+    const { porTipo, total } = respuesta.body as ResumenDashboard;
+
+    expect(porTipo).toHaveLength(7);
+    expect(porTipo.reduce((suma, item) => suma + item.cantidad, 0)).toBe(total);
+  });
+
+  it('entrega las principales empresas ordenadas de mayor a menor', async () => {
+    const respuesta = await request(app.getHttpServer())
+      .get('/dashboard')
+      .expect(200);
+
+    const { topEmpresas } = respuesta.body as ResumenDashboard;
+
+    expect(topEmpresas.length).toBeGreaterThan(0);
+    expect(topEmpresas.length).toBeLessThanOrEqual(6);
+
+    const principales = topEmpresas.filter(
+      (item) => item.etiqueta !== 'Otras empresas',
+    );
+    const cantidades = principales.map((item) => item.cantidad);
+
+    expect(cantidades).toEqual([...cantidades].sort((a, b) => b - a));
   });
 
   it('el total coincide con la suma de los cuatro estados', async () => {

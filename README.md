@@ -3,7 +3,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white">
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
-  <img src="https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white">
   <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white">
   <img src="https://img.shields.io/badge/Nest-E0234E?style=for-the-badge&logo=nestjs&logoColor=white">
   <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
@@ -47,11 +46,11 @@ La API corre en la capa gratuita de Render, que suspende la instancia tras 15 mi
 logirest/
 ├── backend/                      API REST (NestJS)
 │   ├── src/
-│   │   ├── auth/                 Autenticacion JWT, guard y estrategia
-│   │   ├── clientes/             CRUD de clientes y validacion de RUT
-│   │   ├── cliente-lookup/       Integracion con la API externa
+│   │   ├── auth/                 Autenticación JWT, guard y estrategia
+│   │   ├── clientes/             CRUD de clientes y validación de RUT
+│   │   ├── cliente-lookup/       Integración con la API externa
 │   │   ├── common/               Filtro de errores, DTOs y tipos compartidos
-│   │   ├── config/               Fabrica de opciones de TypeORM
+│   │   ├── config/               Fábrica de opciones de TypeORM
 │   │   ├── dashboard/            Agregaciones para el panel
 │   │   ├── health/               Health check
 │   │   ├── proveedor-externo/    Registro externo simulado de clientes
@@ -187,7 +186,7 @@ Los endpoints de lectura son públicos. Los de escritura requieren `Authorizatio
 | GET | `/dashboard` | No | Totales por estado, solicitudes recientes, conteo por tipo y principales empresas |
 | GET | `/cliente-lookup` | No | Busca un cliente por RUT o email. Acepta `query` |
 | GET | `/proveedor-externo/clientes` | No | Registro externo simulado. Acepta `query`, `demora` y `falla` |
-| GET | `/health` | No | Estado del servicio y de la conexion a la base |
+| GET | `/health` | No | Estado del servicio y de la conexión a la base |
 
 <p align="center">
   <img width="1918" height="946" alt="Screenshot_20260729_234900" src="https://github.com/user-attachments/assets/2acd4fe7-8e98-40e3-ac02-dd763ecbbc93" />
@@ -205,11 +204,11 @@ Todos los endpoints devuelven la misma forma ante un error:
 
 ## Modelo de datos
 
-Dos tablas normalizadas con relacion uno a muchos.
+Dos tablas normalizadas con relación uno a muchos.
 
-`clientes` guarda RUT unico opcional, nombre, email, telefono y tipo (persona natural o empresa).
+`clientes` guarda RUT unico opcional, nombre, email, teléfono y tipo (persona natural o empresa).
 
-`solicitudes` guarda el folio de negocio `SOL-{anio}-{correlativo}`, la referencia al cliente, fecha, tipo, estado y descripcion.
+`solicitudes` guarda el folio de negocio `SOL-{anio}-{correlativo}`, la referencia al cliente, fecha, tipo, estado y descripción.
 
 Decisiones relevantes:
 
@@ -217,14 +216,14 @@ Decisiones relevantes:
 - **Clave foranea con `ON DELETE RESTRICT`**, para que no se pueda borrar un cliente con solicitudes asociadas.
 - **`synchronize: false` en TypeORM.** El DDL vive en `schema.sql` y es la fuente de verdad; el ORM no altera el esquema.
 - **Cinco indices**: estado, fecha y cliente en solicitudes; nombre y email en clientes.
-- **Trigger `set_updated_at`** que mantiene `updated_at` desde la base, no solo desde la aplicacion.
+- **Trigger `set_updated_at`** que mantiene `updated_at` desde la base, no solo desde la aplicación.
 
 ## Integración con API externa
 
 `GET /cliente-lookup?query=` resuelve los datos de un cliente en tres niveles:
 
 1. **Local.** Coincidencia exacta por RUT o email en la base. Responde `fuente: "local"` sin salir a la red.
-2. **Externa.** Llamada HTTP al registro externo con timeout explicito. Responde `fuente: "externa"`.
+2. **Externa.** Llamada HTTP al registro externo con timeout explícito. Responde `fuente: "externa"`.
 3. **Simulada.** Si el proveedor excede el timeout, responde con error o es inalcanzable, devuelve datos simulados marcados `simulado: true` y `fuente: "simulada"`, nunca un 500.
 
 El proveedor externo se configura con `PROVEEDOR_EXTERNO_URL`, asi que puede apuntarse a un servicio real sin tocar código. En este proyecto se implementa como un módulo aparte que emula un registro de terceros, con parámetros `demora` y `falla` para provocar timeout y caida a voluntad. El consumo es HTTP real, con manejo de timeout y de errores.
@@ -232,13 +231,13 @@ El proveedor externo se configura con `PROVEEDOR_EXTERNO_URL`, asi que puede apu
 ## Funcionalidades
 
 - Autenticación JWT con guard de rutas e interceptor que adjunta el token y gestiona el 401
-- Panel con tarjetas por estado, grafico de dona de principales empresas, grafico de barras por tipo y tabla de solicitudes recientes
+- Panel con tarjetas por estado, gráfico de dona de principales empresas, gráfico de barras por tipo y tabla de solicitudes recientes
 - CRUD completo de solicitudes: crear, editar, cerrar y eliminar con confirmación
-- Búsqueda por numero, descripción, nombre y email del cliente; filtro por estado; orden por fecha; paginación
+- Búsqueda por número, descripción, nombre y email del cliente; filtro por estado; orden por fecha; paginación
 - Gestión de prospectos con alta y edicion en linea, filtro por tipo y búsqueda
-- Campo de RUT con formateo en vivo, segmentacion del digito verificador y restriccion de la letra K
-- Autocompletado de datos del cliente desde el registro externo, con indicacion visible de la procedencia
-- Tema claro y oscuro con persistencia, mas deteccion de la preferencia del sistema
+- Campo de RUT con formateo en vivo, segmentación del dígito verificador y restricción de la letra K
+- Autocompletado de datos del cliente desde el registro externo, con indicación visible de la procedencia
+- Tema claro y oscuro con persistencia, más detección de la preferencia del sistema
 - Diseño responsive en tres tramos: escritorio, tablet y móvil
 
 ## Despliegue

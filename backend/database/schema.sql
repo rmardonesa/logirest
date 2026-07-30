@@ -4,7 +4,9 @@ CREATE TABLE IF NOT EXISTS clientes (
     nombre VARCHAR(120) NOT NULL,
     email VARCHAR(160) NOT NULL,
     telefono VARCHAR(20),
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    tipo VARCHAR(20) NOT NULL DEFAULT 'persona natural',
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_clientes_tipo CHECK (tipo IN ('persona natural', 'empresa'))
 );
 
 CREATE TABLE IF NOT EXISTS solicitudes (
@@ -34,6 +36,17 @@ CREATE TABLE IF NOT EXISTS solicitudes (
         estado IN ('Pendiente', 'En proceso', 'Finalizada', 'Rechazada')
     )
 );
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'clientes' AND column_name = 'tipo'
+    ) THEN
+        ALTER TABLE clientes ADD COLUMN tipo VARCHAR(20) NOT NULL DEFAULT 'persona natural';
+        ALTER TABLE clientes ADD CONSTRAINT chk_clientes_tipo CHECK (tipo IN ('persona natural', 'empresa'));
+    END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_clientes_nombre ON clientes (nombre);
 CREATE INDEX IF NOT EXISTS idx_clientes_email ON clientes (email);

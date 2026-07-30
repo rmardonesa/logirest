@@ -1,0 +1,105 @@
+.dona {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio);
+  align-items: center;
+}
+
+svg {
+  flex: 0 0 160px;
+  width: 160px;
+  height: 160px;
+}
+
+.segmento {
+  transition: opacity 0.12s ease;
+}
+
+.segmento:hover {
+  opacity: 0.75;
+}
+
+.total-valor {
+  fill: var(--color-texto);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.total-etiqueta {
+  fill: var(--color-texto-suave);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.leyenda {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leyenda li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.muestra {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.nombre {
+  color: var(--color-texto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.valor {
+  color: var(--color-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.vacio {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: 13px;
+}
+
+.serie-1 {
+  stroke: var(--serie-1);
+  background-color: var(--serie-1);
+}
+
+.serie-2 {
+  stroke: var(--serie-2);
+  background-color: var(--serie-2);
+}
+
+.serie-3 {
+  stroke: var(--serie-3);
+  background-color: var(--serie-3);
+}
+
+.serie-4 {
+  stroke: var(--serie-4);
+  background-color: var(--serie-4);
+}
+
+.serie-5 {
+  stroke: var(--serie-5);
+  background-color: var(--serie-5);
+}
+
+.serie-6 {
+  stroke: var(--serie-6);
+  background-color: var(--serie-6);
+}

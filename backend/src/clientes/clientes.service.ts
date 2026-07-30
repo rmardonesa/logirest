@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Cliente } from './entities/cliente.entity';
 import { CrearClienteDto } from './dto/crear-cliente.dto';
+import { ActualizarClienteDto } from './dto/actualizar-cliente.dto';
 import { FiltrarClientesDto } from './dto/filtrar-clientes.dto';
 import type { RespuestaPaginada } from '../common/types/respuesta-paginada';
 
@@ -22,7 +23,7 @@ export class ClientesService {
   async listar(
     filtros: FiltrarClientesDto,
   ): Promise<RespuestaPaginada<Cliente>> {
-    const { search, page, limit } = filtros;
+    const { search, tipo, page, limit } = filtros;
 
     const consulta = this.clientes.createQueryBuilder('cliente');
 
@@ -33,6 +34,10 @@ export class ClientesService {
           OR cliente.rut ILIKE :patron)`,
         { patron: `%${search}%` },
       );
+    }
+
+    if (tipo) {
+      consulta.andWhere('cliente.tipo = :tipo', { tipo });
     }
 
     const [data, total] = await consulta
@@ -50,6 +55,34 @@ export class ClientesService {
         totalPages: Math.max(1, Math.ceil(total / limit)),
       },
     };
+  }
+
+  async obtenerPorId(id: number): Promise<Cliente> {
+    const cliente = await this.clientes.findOneBy({ id });
+
+    if (!cliente) {
+      throw new NotFoundException(`Cliente con id ${id} no encontrado`);
+    }
+
+    return cliente;
+  }
+
+  async actualizar(id: number, datos: ActualizarClienteDto): Promise<Cliente> {
+    const cliente = await this.obtenerPorId(id);
+
+    Object.assign(cliente, datos);
+
+    try {
+      return await this.clientes.save(cliente);
+    } catch (error) {
+      if (esViolacionDeUnicidad(error)) {
+        throw new ConflictException(
+          `Ya existe un cliente con el rut ${datos.rut}`,
+        );
+      }
+
+      throw error;
+    }
   }
 
   async crear(datos: CrearClienteDto): Promise<Cliente> {

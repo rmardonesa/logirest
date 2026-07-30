@@ -1,0 +1,102 @@
+<section class="formulario-solicitud">
+  <header class="encabezado">
+    <h1>{{ modoEdicion() ? 'Editar solicitud' : 'Nueva solicitud' }}</h1>
+    <a class="boton-secundario" routerLink="/solicitudes">Volver al listado</a>
+  </header>
+
+  @if (cargando()) {
+    <p class="aviso">Cargando solicitud...</p>
+  }
+
+  <form class="tarjeta" [formGroup]="formulario" (ngSubmit)="guardar()">
+    <div class="campo">
+      <label for="cliente">Cliente</label>
+
+      @if (modoEdicion()) {
+        <p class="valor-fijo" id="cliente">
+          {{ clienteBloqueado()?.nombre }}
+          <span class="valor-secundario">
+            {{ clienteBloqueado()?.email }} &middot;
+            {{ clienteBloqueado()?.telefono ?? 'sin telefono' }}
+          </span>
+        </p>
+      } @else {
+        <app-autocomplete-cliente
+          (clienteSeleccionado)="onClienteSeleccionado($event)"
+        />
+
+        @if (campoInvalido('clienteId')) {
+          <p class="error-campo">Debes seleccionar un cliente</p>
+        }
+      }
+    </div>
+
+    <div class="fila">
+      <div class="campo">
+        <label for="fecha">Fecha</label>
+        <input id="fecha" type="date" formControlName="fecha" />
+
+        @if (campoInvalido('fecha')) {
+          <p class="error-campo">La fecha es obligatoria</p>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="tipo">Tipo de solicitud</label>
+        <select id="tipo" formControlName="tipoSolicitud">
+          <option value="" disabled>Selecciona un tipo</option>
+          @for (tipo of tipos; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+          }
+        </select>
+
+        @if (campoInvalido('tipoSolicitud')) {
+          <p class="error-campo">El tipo de solicitud es obligatorio</p>
+        }
+      </div>
+    </div>
+
+    @if (modoEdicion()) {
+      <div class="campo">
+        <label for="estado">Estado</label>
+        <select id="estado" formControlName="estado">
+          @for (opcion of estados; track opcion) {
+            <option [value]="opcion">{{ opcion }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <div class="campo">
+      <label for="descripcion">Descripcion</label>
+      <textarea
+        id="descripcion"
+        rows="5"
+        formControlName="descripcion"
+        placeholder="Detalla la solicitud del cliente"
+      ></textarea>
+
+      @if (campoInvalido('descripcion')) {
+        <p class="error-campo">
+          La descripcion es obligatoria y debe tener entre 10 y 1000 caracteres
+        </p>
+      }
+    </div>
+
+    @if (error(); as mensaje) {
+      <p class="aviso aviso-error" role="alert">{{ mensaje }}</p>
+    }
+
+    <div class="acciones">
+      <a class="boton-secundario" routerLink="/solicitudes">Cancelar</a>
+
+      <button
+        type="submit"
+        class="boton-primario"
+        [disabled]="!formularioValido() || guardando()"
+      >
+        {{ guardando() ? 'Guardando...' : 'Guardar solicitud' }}
+      </button>
+    </div>
+  </form>
+</section>

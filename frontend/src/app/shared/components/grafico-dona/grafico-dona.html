@@ -1,0 +1,42 @@
+@if (segmentos().length === 0) {
+  <p class="vacio">Sin datos para graficar.</p>
+} @else {
+  <div class="dona">
+    <svg viewBox="0 0 160 160" role="img" aria-label="Distribucion de solicitudes por empresa">
+      <g transform="rotate(-90 80 80)">
+        @for (segmento of segmentos(); track segmento.etiqueta) {
+          <circle
+            class="segmento"
+            [class]="'serie-' + segmento.serie"
+            cx="80"
+            cy="80"
+            [attr.r]="radio"
+            fill="none"
+            [attr.stroke-width]="grosor"
+            [attr.stroke-dasharray]="segmento.largo + ' ' + segmento.resto"
+            [attr.stroke-dashoffset]="-segmento.desplazamiento"
+          >
+            <title>{{ segmento.etiqueta }}: {{ segmento.cantidad }}</title>
+          </circle>
+        }
+      </g>
+
+      <text class="total-valor" x="80" y="78" text-anchor="middle">
+        {{ total() }}
+      </text>
+      <text class="total-etiqueta" x="80" y="94" text-anchor="middle">
+        solicitudes
+      </text>
+    </svg>
+
+    <ul class="leyenda">
+      @for (segmento of segmentos(); track segmento.etiqueta) {
+        <li>
+          <span class="muestra" [class]="'serie-' + segmento.serie"></span>
+          <span class="nombre">{{ segmento.etiqueta }}</span>
+          <span class="valor">{{ segmento.cantidad }} ({{ segmento.porcentaje }}%)</span>
+        </li>
+      }
+    </ul>
+  </div>
+}

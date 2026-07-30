@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -7,6 +8,10 @@ import {
   Validate,
 } from 'class-validator';
 import { RutValidoConstraint } from '../validators/rut.validator';
+
+export const TIPOS_CLIENTE = ['persona natural', 'empresa'] as const;
+
+export type TipoCliente = (typeof TIPOS_CLIENTE)[number];
 
 export class CrearClienteDto {
   @IsOptional()
@@ -26,4 +31,10 @@ export class CrearClienteDto {
   @IsString({ message: 'telefono debe ser un texto' })
   @MaxLength(20, { message: 'telefono no puede superar 20 caracteres' })
   telefono?: string;
+
+  @IsOptional()
+  @IsIn(TIPOS_CLIENTE, {
+    message: `tipo debe ser uno de: ${TIPOS_CLIENTE.join(', ')}`,
+  })
+  tipo?: TipoCliente;
 }

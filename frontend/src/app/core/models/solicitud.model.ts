@@ -23,6 +23,8 @@ export type TipoSolicitud = (typeof TIPOS_SOLICITUD)[number];
 
 export type OrdenFecha = 'ASC' | 'DESC';
 
+export const ESTADO_CIERRE: EstadoSolicitud = 'Finalizada';
+
 export interface Solicitud {
   id: number;
   numero: string;
@@ -34,6 +36,20 @@ export interface Solicitud {
   descripcion: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CrearSolicitud {
+  clienteId: number;
+  fecha: string;
+  tipoSolicitud: TipoSolicitud;
+  descripcion: string;
+}
+
+export interface ActualizarSolicitud {
+  fecha: string;
+  tipoSolicitud: TipoSolicitud;
+  descripcion: string;
+  estado: EstadoSolicitud;
 }
 
 export interface FiltrosSolicitudes {

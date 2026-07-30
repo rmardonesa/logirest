@@ -6,13 +6,23 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { ResumenDashboard } from '../../core/models/dashboard.model';
 import { TarjetaEstadistica } from '../../shared/components/tarjeta-estadistica/tarjeta-estadistica';
+import { EstadoBadge } from '../../shared/components/estado-badge/estado-badge';
+import { GraficoDona } from '../../shared/components/grafico-dona/grafico-dona';
+import { GraficoBarras } from '../../shared/components/grafico-barras/grafico-barras';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [TarjetaEstadistica],
+  imports: [
+    TarjetaEstadistica,
+    EstadoBadge,
+    RouterLink,
+    GraficoDona,
+    GraficoBarras,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

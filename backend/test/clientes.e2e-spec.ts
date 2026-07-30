@@ -9,8 +9,7 @@ import { configurarAplicacion } from './../src/common/app-setup';
 import { parsearCredenciales } from './../src/auth/auth.service';
 import { Cliente } from './../src/clientes/entities/cliente.entity';
 import {
-  calcularDigitoVerificador,
-  esRutValido,
+  tieneFormatoDeRut,
 } from './../src/clientes/validators/rut.validator';
 
 interface CuerpoListado {
@@ -63,19 +62,28 @@ describe('ClientesController (e2e)', () => {
     await app.close();
   });
 
-  describe('validacion de RUT', () => {
-    it('calcula el digito verificador segun modulo 11', () => {
-      expect(calcularDigitoVerificador('12345678')).toBe('5');
-      expect(calcularDigitoVerificador('16543210')).toBe('K');
-      expect(calcularDigitoVerificador('9876543')).toBe('3');
+  describe('formato de RUT', () => {
+    it('acepta cuerpos de 7 y 8 digitos con guion', () => {
+      expect(tieneFormatoDeRut('12345678-5')).toBe(true);
+      expect(tieneFormatoDeRut('9876543-3')).toBe(true);
     });
 
-    it('acepta RUT validos y rechaza invalidos', () => {
-      expect(esRutValido('12345678-5')).toBe(true);
-      expect(esRutValido('16543210-K')).toBe(true);
-      expect(esRutValido('12345678-9')).toBe(false);
-      expect(esRutValido('12.345.678-5')).toBe(false);
-      expect(esRutValido('sin-formato')).toBe(false);
+    it('acepta K como digito verificador, en mayuscula y minuscula', () => {
+      expect(tieneFormatoDeRut('16543210-K')).toBe(true);
+      expect(tieneFormatoDeRut('16543210-k')).toBe(true);
+    });
+
+    it('rechaza lo que no respeta la segmentacion con guion', () => {
+      expect(tieneFormatoDeRut('123456785')).toBe(false);
+      expect(tieneFormatoDeRut('12.345.678-5')).toBe(false);
+      expect(tieneFormatoDeRut('sin-formato')).toBe(false);
+      expect(tieneFormatoDeRut('123456-7')).toBe(false);
+      expect(tieneFormatoDeRut('123456789-5')).toBe(false);
+    });
+
+    it('rechaza K en el cuerpo, solo se admite como digito verificador', () => {
+      expect(tieneFormatoDeRut('1234K678-5')).toBe(false);
+      expect(tieneFormatoDeRut('K2345678-5')).toBe(false);
     });
   });
 
@@ -189,11 +197,19 @@ describe('ClientesController (e2e)', () => {
       });
     });
 
-    it('responde 400 con rut de digito verificador incorrecto', async () => {
+    it('responde 400 con rut sin guion separador', async () => {
       await crearCliente({
-        rut: '12345678-9',
-        nombre: 'Rut Invalido',
-        email: 'rutinvalido@ejemplo.cl',
+        rut: '123456789',
+        nombre: 'Rut Sin Guion',
+        email: 'rutsinguion@ejemplo.cl',
+      }).expect(400);
+    });
+
+    it('responde 400 con K fuera del digito verificador', async () => {
+      await crearCliente({
+        rut: '1234K678-5',
+        nombre: 'K Mal Puesta',
+        email: 'kmalpuesta@ejemplo.cl',
       }).expect(400);
     });
 

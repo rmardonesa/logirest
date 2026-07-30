@@ -16,7 +16,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
     "db:schema": "docker compose -f ../docker-compose.yml exec -T postgres psql -U postgres -d logirest < database/schema.sql",
     "db:seed": "docker compose -f ../docker-compose.yml exec -T postgres psql -U postgres -d logirest < database/seed.sql"
   },

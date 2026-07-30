@@ -7,6 +7,8 @@ import { HealthModule } from './health/health.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ClienteLookupModule } from './cliente-lookup/cliente-lookup.module';
+import { ProveedorExternoModule } from './proveedor-externo/proveedor-externo.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     ClientesModule,
     SolicitudesModule,
     DashboardModule,
+    ClienteLookupModule,
+    ProveedorExternoModule,
     HealthModule,
   ],
 })

@@ -1,0 +1,28 @@
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pendiente {
+  color: var(--color-pendiente-texto);
+  background-color: var(--color-pendiente-fondo);
+}
+
+.en-proceso {
+  color: var(--color-en-proceso-texto);
+  background-color: var(--color-en-proceso-fondo);
+}
+
+.finalizada {
+  color: var(--color-finalizada-texto);
+  background-color: var(--color-finalizada-fondo);
+}
+
+.rechazada {
+  color: var(--color-rechazada-texto);
+  background-color: var(--color-rechazada-fondo);
+}

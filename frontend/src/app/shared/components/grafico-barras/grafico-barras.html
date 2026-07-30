@@ -1,0 +1,19 @@
+@if (barras().length === 0) {
+  <p class="vacio">Sin datos para graficar.</p>
+} @else {
+  <ul class="barras">
+    @for (barra of barras(); track barra.etiqueta) {
+      <li>
+        <span class="etiqueta">{{ barra.etiqueta }}</span>
+        <span class="pista">
+          <span
+            class="relleno"
+            [style.width.%]="barra.ancho"
+            [attr.title]="barra.etiqueta + ': ' + barra.cantidad"
+          ></span>
+        </span>
+        <span class="valor">{{ barra.cantidad }}</span>
+      </li>
+    }
+  </ul>
+}

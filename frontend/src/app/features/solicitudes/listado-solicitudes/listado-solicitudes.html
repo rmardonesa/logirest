@@ -1,0 +1,118 @@
+<section class="listado">
+  <header class="encabezado">
+    <h1>Solicitudes</h1>
+    <a class="boton-primario" routerLink="/solicitudes/nueva">Nueva solicitud</a>
+  </header>
+
+  <form class="filtros" (submit)="$event.preventDefault()">
+    <label class="campo campo-busqueda">
+      <span>Buscar</span>
+      <input
+        type="search"
+        placeholder="Numero, descripcion, cliente o email"
+        (input)="buscar($any($event.target).value)"
+      />
+    </label>
+
+    <label class="campo">
+      <span>Estado</span>
+      <select (change)="filtrarPorEstado($any($event.target).value)">
+        <option value="">Todos</option>
+        @for (opcion of estados; track opcion) {
+          <option [value]="opcion">{{ opcion }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="campo">
+      <span>Fecha</span>
+      <select (change)="cambiarOrden($any($event.target).value)">
+        <option value="DESC">Mas recientes primero</option>
+        <option value="ASC">Mas antiguas primero</option>
+      </select>
+    </label>
+  </form>
+
+  @if (error(); as mensaje) {
+    <p class="aviso aviso-error">{{ mensaje }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="aviso">Cargando solicitudes...</p>
+  }
+
+  @if (sinResultados()) {
+    <p class="aviso">No hay solicitudes que coincidan con la busqueda.</p>
+  }
+
+  @if (solicitudes().length > 0) {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Numero</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">RUT</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Descripcion</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (solicitud of solicitudes(); track solicitud.id) {
+            <tr>
+              <td class="numero">{{ solicitud.numero }}</td>
+              <td>{{ solicitud.fecha | date: 'dd-MM-yyyy' }}</td>
+              <td>
+                <span class="cliente-nombre">{{ solicitud.cliente.nombre }}</span>
+                <span class="cliente-email">{{ solicitud.cliente.email }}</span>
+                @if (solicitud.cliente.telefono) {
+                  <span class="cliente-telefono">{{ solicitud.cliente.telefono }}</span>
+                }
+              </td>
+              <td class="rut">{{ solicitud.cliente.rut ?? '—' }}</td>
+              <td>{{ solicitud.tipoSolicitud }}</td>
+              <td><app-estado-badge [estado]="solicitud.estado" /></td>
+              <td class="descripcion">{{ solicitud.descripcion }}</td>
+              <td class="acciones">
+                <a class="accion" routerLink="/solicitudes/{{ solicitud.id }}/editar">Editar</a>
+
+                @if (solicitud.estado !== estadoCierre) {
+                  <button
+                    type="button"
+                    class="accion"
+                    [disabled]="operando() === solicitud.id"
+                    (click)="cerrar(solicitud.id)"
+                  >
+                    {{ operando() === solicitud.id ? 'Cerrando...' : 'Cerrar' }}
+                  </button>
+                }
+
+                @if (pendienteDeBorrar() === solicitud.id) {
+                  <span class="confirmar">
+                    <span class="confirmar-texto">¿Eliminar?</span>
+                    <button type="button" class="accion accion-peligro" (click)="eliminar(solicitud.id)">Si</button>
+                    <button type="button" class="accion" (click)="cancelarBorrado()">No</button>
+                  </span>
+                } @else {
+                  <button
+                    type="button"
+                    class="accion accion-peligro"
+                    [disabled]="operando() === solicitud.id"
+                    (click)="pedirConfirmacion(solicitud.id)"
+                  >Eliminar</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (meta(); as paginacion) {
+    <app-paginador [meta]="paginacion" (paginaSeleccionada)="cambiarPagina($event)" />
+  }
+</section>

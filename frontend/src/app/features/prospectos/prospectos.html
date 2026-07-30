@@ -1,0 +1,266 @@
+<section class="prospectos">
+  <header class="encabezado">
+    <h1>Prospectos</h1>
+    <button type="button" class="boton-primario" (click)="mostrarCrear()">
+      Generar prospecto
+    </button>
+  </header>
+
+  <form class="filtros" (submit)="$event.preventDefault()">
+    <label class="campo campo-busqueda">
+      <span>Buscar</span>
+      <input
+        type="search"
+        placeholder="Nombre, RUT o email"
+        (input)="buscar($any($event.target).value)"
+      />
+    </label>
+
+    <label class="campo">
+      <span>Tipo</span>
+      <select (change)="filtrarPorTipo($any($event.target).value)">
+        <option value="">Todos</option>
+        <option value="persona natural">Persona Natural</option>
+        <option value="empresa">Empresa</option>
+      </select>
+    </label>
+  </form>
+
+  @if (mostrandoCrear()) {
+    <form
+      class="formulario-crear"
+      [formGroup]="formularioCreacion"
+      (ngSubmit)="guardarCreacion()"
+    >
+      <div class="formulario-crear-campos">
+        <label class="campo">
+          <span>RUT</span>
+          <input
+            type="text"
+            formControlName="rut"
+            placeholder="12345678-5"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            autocapitalize="characters"
+            maxlength="10"
+            (input)="onRutInput($event, 'creacion')"
+            (blur)="marcarRutTocado('creacion'); consultarRegistro()"
+          />
+          @if (errorRutCreacion(); as mensaje) {
+            <p class="error-campo">{{ mensaje }}</p>
+          }
+          @if (consultandoLookup()) {
+            <p class="lookup-estado">Consultando registro de clientes...</p>
+          }
+        </label>
+
+        <label class="campo">
+          <span>Nombre</span>
+          <input type="text" formControlName="nombre" />
+          @if (campoCreacionInvalido('nombre')) {
+            <p class="error-campo">Obligatorio</p>
+          }
+        </label>
+
+        <label class="campo">
+          <span>Email</span>
+          <input type="email" formControlName="email" />
+          @if (campoCreacionInvalido('email')) {
+            <p class="error-campo">Email invalido</p>
+          }
+        </label>
+
+        <label class="campo">
+          <span>Telefono</span>
+          <input type="text" formControlName="telefono" placeholder="+56 9 1234 5678" />
+        </label>
+
+        <label class="campo">
+          <span>Tipo</span>
+          <select formControlName="tipo">
+            <option value="persona natural">Persona Natural</option>
+            <option value="empresa">Empresa</option>
+          </select>
+        </label>
+      </div>
+
+      @if (resultadoLookup(); as lookup) {
+        <p
+          class="lookup-aviso"
+          [class.lookup-local]="lookup.fuente === 'local'"
+          [class.lookup-externa]="lookup.fuente === 'externa'"
+          [class.lookup-simulada]="lookup.fuente === 'simulada'"
+        >
+          <span class="lookup-fuente">
+            @switch (lookup.fuente) {
+              @case ('local') {
+                Ya registrado en logirest
+              }
+              @case ('externa') {
+                Registro externo
+              }
+              @case ('simulada') {
+                Datos simulados
+              }
+            }
+          </span>
+          {{ lookup.detalle }}
+        </p>
+      }
+
+      @if (errorCreacion(); as mensaje) {
+        <p class="aviso aviso-error" role="alert">{{ mensaje }}</p>
+      }
+
+      <div class="acciones-inline">
+        <button
+          type="submit"
+          class="boton-primario"
+          [disabled]="!creacionValida() || guardandoCreacion()"
+        >
+          {{ guardandoCreacion() ? 'Guardando...' : 'Guardar' }}
+        </button>
+        <button type="button" class="boton-secundario" (click)="cancelarCrear()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (error(); as mensaje) {
+    <p class="aviso aviso-error">{{ mensaje }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="aviso">Cargando prospectos...</p>
+  }
+
+  @if (sinResultados()) {
+    <p class="aviso">No hay prospectos que coincidan con la busqueda.</p>
+  }
+
+  @if (clientes().length > 0) {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">RUT</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Email</th>
+            <th scope="col">Telefono</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cliente of clientes(); track cliente.id) {
+            @if (editandoId() === cliente.id) {
+              <tr class="fila-edicion">
+                <td colspan="6">
+                  <form
+                    class="formulario-inline"
+                    [formGroup]="formularioEdicion"
+                    (ngSubmit)="guardarEdicion()"
+                  >
+                    <div class="fila-campos">
+                      <label class="campo">
+                        <span>RUT</span>
+                        <input
+                          type="text"
+                          formControlName="rut"
+                          placeholder="12345678-5"
+                          inputmode="text"
+                          autocomplete="off"
+                          spellcheck="false"
+                          autocapitalize="characters"
+                          maxlength="10"
+                          (input)="onRutInput($event, 'edicion')"
+                          (blur)="marcarRutTocado('edicion')"
+                        />
+                        @if (errorRutEdicion(); as mensaje) {
+                          <p class="error-campo">{{ mensaje }}</p>
+                        }
+                      </label>
+
+                      <label class="campo">
+                        <span>Nombre</span>
+                        <input type="text" formControlName="nombre" />
+                        @if (campoInvalido('nombre')) {
+                          <p class="error-campo">Obligatorio</p>
+                        }
+                      </label>
+
+                      <label class="campo">
+                        <span>Email</span>
+                        <input type="email" formControlName="email" />
+                        @if (campoInvalido('email')) {
+                          <p class="error-campo">Email invalido</p>
+                        }
+                      </label>
+
+                      <label class="campo">
+                        <span>Telefono</span>
+                        <input type="text" formControlName="telefono" placeholder="+56 9 1234 5678" />
+                      </label>
+
+                      <label class="campo">
+                        <span>Tipo</span>
+                        <select formControlName="tipo">
+                          <option value="persona natural">Persona Natural</option>
+                          <option value="empresa">Empresa</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    @if (errorEdicion(); as mensaje) {
+                      <p class="aviso aviso-error" role="alert">{{ mensaje }}</p>
+                    }
+
+                    <div class="acciones-inline">
+                      <button
+                        type="submit"
+                        class="boton-primario"
+                        [disabled]="!edicionValida() || guardandoEdicion()"
+                      >
+                        {{ guardandoEdicion() ? 'Guardando...' : 'Guardar' }}
+                      </button>
+                      <button
+                        type="button"
+                        class="boton-secundario"
+                        (click)="cancelarEdicion()"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                </td>
+              </tr>
+            } @else {
+              <tr>
+                <td>{{ cliente.rut ?? '—' }}</td>
+                <td class="nombre">{{ cliente.nombre }}</td>
+                <td>{{ cliente.email }}</td>
+                <td>{{ cliente.telefono ?? '—' }}</td>
+                <td>
+                  <span class="tipo-badge" [class.empresa]="cliente.tipo === 'empresa'">
+                    {{ cliente.tipo === 'empresa' ? 'Empresa' : 'Persona Natural' }}
+                  </span>
+                </td>
+                <td>
+                  <button type="button" class="accion-editar" (click)="editar(cliente)">
+                    Editar
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (meta(); as paginacion) {
+    <app-paginador [meta]="paginacion" (paginaSeleccionada)="cambiarPagina($event)" />
+  }
+</section>

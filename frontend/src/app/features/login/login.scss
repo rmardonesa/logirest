@@ -1,0 +1,138 @@
+.acceso {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  background:
+    radial-gradient(ellipse at 20% 15%, rgb(47 95 208 / 35%) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgb(20 96 143 / 30%) 0%, transparent 55%),
+    #0d1017;
+}
+
+.acceso-contenido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  margin: auto;
+  width: 100%;
+  max-width: 380px;
+}
+
+.acceso-marca {
+  text-align: center;
+}
+
+.acceso-titulo {
+  margin: 0;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.acceso-bajada {
+  margin: 6px 0 0;
+  color: rgb(255 255 255 / 55%);
+  font-size: 13px;
+}
+
+.acceso-tarjeta {
+  width: 100%;
+  padding: 32px 28px;
+  background-color: rgb(255 255 255 / 7%);
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 18px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.acceso-tarjeta h1 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.acceso-instruccion {
+  margin: 4px 0 24px;
+  color: rgb(255 255 255 / 50%);
+  font-size: 13px;
+}
+
+.acceso-tarjeta form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.acceso-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.acceso-campo span {
+  color: rgb(255 255 255 / 70%);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.acceso-campo input {
+  width: 100%;
+  padding: 10px 14px;
+  color: #fff;
+  background-color: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.acceso-campo input::placeholder {
+  color: rgb(255 255 255 / 35%);
+}
+
+.acceso-campo input:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.acceso-error {
+  margin: 0;
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.acceso-boton {
+  margin-top: 4px;
+  width: 100%;
+  padding: 11px;
+  color: var(--color-primario-contraste);
+  background-color: var(--color-primario);
+  border: 0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.12s ease;
+}
+
+.acceso-boton:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.acceso-boton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.acceso-pie {
+  margin: 0;
+  color: rgb(255 255 255 / 35%);
+  font-size: 11px;
+  text-align: center;
+}

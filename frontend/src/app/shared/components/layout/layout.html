@@ -1,0 +1,92 @@
+<div class="aplicacion">
+  <aside class="barra-lateral" [class.abierta]="barraAbierta()">
+    <div class="marca">
+      <p class="marca-nombre">logirest</p>
+      <p class="marca-bajada">Solicitudes de despacho</p>
+    </div>
+
+    <nav class="navegacion">
+      <p class="navegacion-seccion">Operaciones</p>
+
+      <a
+        routerLink="/resumen"
+        routerLinkActive="activo"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="cerrarBarraEnMovil()"
+        >Resumen</a
+      >
+
+      <a
+        routerLink="/solicitudes"
+        routerLinkActive="activo"
+        (click)="cerrarBarraEnMovil()"
+        >Solicitudes</a
+      >
+
+      <a
+        routerLink="/prospectos"
+        routerLinkActive="activo"
+        (click)="cerrarBarraEnMovil()"
+        >Prospectos</a
+      >
+    </nav>
+
+    <div class="pie-barra">
+      @if (usuario(); as nombre) {
+        <p class="sesion-usuario">{{ nombre }}</p>
+      }
+
+      <button type="button" class="boton-sesion" (click)="cerrarSesion()">
+        Cerrar sesion
+      </button>
+    </div>
+  </aside>
+
+  @if (barraAbierta()) {
+    <button
+      type="button"
+      class="velo"
+      aria-label="Cerrar menu lateral"
+      (click)="alternarBarra()"
+    ></button>
+  }
+
+  <div class="principal">
+    <header class="cabecera">
+      <button
+        type="button"
+        class="boton-menu"
+        [attr.aria-expanded]="barraAbierta()"
+        aria-label="Alternar menu lateral"
+        (click)="alternarBarra()"
+      >
+        <span class="barras"></span>
+      </button>
+
+      <div class="cabecera-derecha">
+        <button
+          type="button"
+          class="boton-tema"
+          [attr.aria-label]="
+            tema() === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
+          "
+          (click)="alternarTema()"
+        >
+          {{ tema() === 'dark' ? 'Claro' : 'Oscuro' }}
+        </button>
+
+        <div class="reloj">
+          <p class="reloj-fecha reloj-fecha-larga">{{ fechaLarga() }}</p>
+          <p class="reloj-fecha reloj-fecha-corta">{{ fechaCorta() }}</p>
+          <p class="reloj-hora">{{ hora() }}</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="contenido">
+      <div class="contenido-interior">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+</div>

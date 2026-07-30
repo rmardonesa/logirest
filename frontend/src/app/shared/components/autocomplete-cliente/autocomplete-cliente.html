@@ -1,0 +1,45 @@
+<div class="autocomplete">
+  @if (seleccionado(); as cliente) {
+    <div class="seleccionado">
+      <div class="seleccionado-info">
+        <span class="seleccionado-nombre">{{ cliente.nombre }}</span>
+        <span class="seleccionado-detalle">{{ cliente.rut ?? 'sin rut' }} &middot; {{ cliente.email }}</span>
+      </div>
+      <button type="button" class="limpiar" (click)="limpiar()">&times;</button>
+    </div>
+  } @else {
+    <input
+      #input
+      type="text"
+      class="autocomplete-input"
+      placeholder="Buscar cliente por nombre, RUT o email..."
+      autocomplete="off"
+      (input)="buscar($any($event.target).value)"
+      (blur)="cerrarLista()"
+    />
+
+    @if (cargando()) {
+      <div class="estado">Buscando...</div>
+    }
+
+    @if (abierto() && resultados().length > 0) {
+      <ul class="lista" role="listbox">
+        @for (cliente of resultados(); track cliente.id) {
+          <li
+            role="option"
+            class="opcion"
+            (mousedown)="seleccionar(cliente)"
+          >
+            <span class="opcion-nombre">{{ cliente.nombre }}</span>
+            <span class="opcion-detalle">
+              {{ cliente.rut ?? 'sin rut' }} &middot; {{ cliente.email }}
+              @if (cliente.telefono) {
+                &middot; {{ cliente.telefono }}
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

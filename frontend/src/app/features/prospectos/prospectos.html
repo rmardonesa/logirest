@@ -1,6 +1,9 @@
 <section class="prospectos">
   <header class="encabezado">
     <h1>Prospectos</h1>
+    <button type="button" class="boton-primario" (click)="mostrarCrear()">
+      Generar prospecto
+    </button>
   </header>
 
   <form class="filtros" (submit)="$event.preventDefault()">
@@ -22,6 +25,81 @@
       </select>
     </label>
   </form>
+
+  @if (mostrandoCrear()) {
+    <form
+      class="formulario-crear"
+      [formGroup]="formularioCreacion"
+      (ngSubmit)="guardarCreacion()"
+    >
+      <div class="formulario-crear-campos">
+        <label class="campo">
+          <span>RUT</span>
+          <input
+            type="text"
+            formControlName="rut"
+            placeholder="12345678-5"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            autocapitalize="characters"
+            maxlength="10"
+            (input)="onRutInput($event, 'creacion')"
+            (blur)="marcarRutTocado('creacion')"
+          />
+          @if (errorRutCreacion(); as mensaje) {
+            <p class="error-campo">{{ mensaje }}</p>
+          }
+        </label>
+
+        <label class="campo">
+          <span>Nombre</span>
+          <input type="text" formControlName="nombre" />
+          @if (campoCreacionInvalido('nombre')) {
+            <p class="error-campo">Obligatorio</p>
+          }
+        </label>
+
+        <label class="campo">
+          <span>Email</span>
+          <input type="email" formControlName="email" />
+          @if (campoCreacionInvalido('email')) {
+            <p class="error-campo">Email invalido</p>
+          }
+        </label>
+
+        <label class="campo">
+          <span>Telefono</span>
+          <input type="text" formControlName="telefono" placeholder="+56 9 1234 5678" />
+        </label>
+
+        <label class="campo">
+          <span>Tipo</span>
+          <select formControlName="tipo">
+            <option value="persona natural">Persona Natural</option>
+            <option value="empresa">Empresa</option>
+          </select>
+        </label>
+      </div>
+
+      @if (errorCreacion(); as mensaje) {
+        <p class="aviso aviso-error" role="alert">{{ mensaje }}</p>
+      }
+
+      <div class="acciones-inline">
+        <button
+          type="submit"
+          class="boton-primario"
+          [disabled]="!creacionValida() || guardandoCreacion()"
+        >
+          {{ guardandoCreacion() ? 'Guardando...' : 'Guardar' }}
+        </button>
+        <button type="button" class="boton-secundario" (click)="cancelarCrear()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  }
 
   @if (error(); as mensaje) {
     <p class="aviso aviso-error">{{ mensaje }}</p>
@@ -61,7 +139,21 @@
                     <div class="fila-campos">
                       <label class="campo">
                         <span>RUT</span>
-                        <input type="text" formControlName="rut" placeholder="12.345.678-9" />
+                        <input
+                          type="text"
+                          formControlName="rut"
+                          placeholder="12345678-5"
+                          inputmode="text"
+                          autocomplete="off"
+                          spellcheck="false"
+                          autocapitalize="characters"
+                          maxlength="10"
+                          (input)="onRutInput($event, 'edicion')"
+                          (blur)="marcarRutTocado('edicion')"
+                        />
+                        @if (errorRutEdicion(); as mensaje) {
+                          <p class="error-campo">{{ mensaje }}</p>
+                        }
                       </label>
 
                       <label class="campo">
@@ -102,7 +194,7 @@
                       <button
                         type="submit"
                         class="boton-primario"
-                        [disabled]="formularioEdicion.invalid || guardandoEdicion()"
+                        [disabled]="!edicionValida() || guardandoEdicion()"
                       >
                         {{ guardandoEdicion() ? 'Guardando...' : 'Guardar' }}
                       </button>

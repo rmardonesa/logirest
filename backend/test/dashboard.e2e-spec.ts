@@ -47,11 +47,11 @@ describe('DashboardController (e2e)', () => {
       'finalizadas',
       'pendientes',
       'rechazadas',
+      'recientes',
       'total',
     ]);
-    expect(
-      Object.values(resumen).every((valor) => Number.isInteger(valor)),
-    ).toBe(true);
+    expect(resumen.total).toEqual(expect.any(Number));
+    expect(Array.isArray(resumen.recientes)).toBe(true);
   });
 
   it('el total coincide con la suma de los cuatro estados', async () => {

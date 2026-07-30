@@ -7,13 +7,20 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ClientesService } from '../../core/services/clientes.service';
 import { Cliente, TipoCliente } from '../../core/models/cliente.model';
 import { RespuestaPaginada } from '../../core/models/paginacion.model';
 import { Paginador } from '../../shared/components/paginador/paginador';
+import { rutValido } from '../../core/validators/rut';
+import { canonizar, separar, formatear, contarCaracteresCanonicos } from '../../core/utils/rut';
 
 const MILISEGUNDOS_DEBOUNCE = 300;
 
@@ -49,12 +56,70 @@ export class Prospectos {
   protected readonly guardandoEdicion = signal(false);
   protected readonly errorEdicion = signal('');
 
+  protected readonly mostrandoCrear = signal(false);
+  protected readonly guardandoCreacion = signal(false);
+  protected readonly errorCreacion = signal('');
+
   protected readonly formularioEdicion = this.formBuilder.nonNullable.group({
-    rut: [''],
+    rut: ['', rutValido()],
     nombre: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     telefono: [''],
     tipo: ['persona natural' as TipoCliente],
+  });
+
+  protected readonly formularioCreacion = this.formBuilder.nonNullable.group({
+    rut: ['', rutValido()],
+    nombre: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    telefono: [''],
+    tipo: ['persona natural' as TipoCliente],
+  });
+
+  protected readonly rutCreacionTocado = signal(false);
+  protected readonly rutEdicionTocado = signal(false);
+  private readonly revisionRut = signal(0);
+
+  private readonly estadoCreacion = toSignal(
+    this.formularioCreacion.statusChanges,
+    { initialValue: this.formularioCreacion.status },
+  );
+
+  private readonly estadoEdicion = toSignal(
+    this.formularioEdicion.statusChanges,
+    { initialValue: this.formularioEdicion.status },
+  );
+
+  protected readonly creacionValida = computed(() => {
+    this.estadoCreacion();
+    this.revisionRut();
+
+    return this.formularioCreacion.valid;
+  });
+
+  protected readonly edicionValida = computed(() => {
+    this.estadoEdicion();
+    this.revisionRut();
+
+    return this.formularioEdicion.valid;
+  });
+
+  protected readonly errorRutCreacion = computed(() => {
+    this.estadoCreacion();
+    this.revisionRut();
+
+    return this.rutCreacionTocado()
+      ? this.mensajeRut(this.formularioCreacion.controls.rut)
+      : '';
+  });
+
+  protected readonly errorRutEdicion = computed(() => {
+    this.estadoEdicion();
+    this.revisionRut();
+
+    return this.rutEdicionTocado()
+      ? this.mensajeRut(this.formularioEdicion.controls.rut)
+      : '';
   });
 
   constructor() {
@@ -96,6 +161,7 @@ export class Prospectos {
   protected editar(cliente: Cliente): void {
     this.editandoId.set(cliente.id);
     this.errorEdicion.set('');
+    this.rutEdicionTocado.set(false);
     this.formularioEdicion.setValue({
       rut: cliente.rut ?? '',
       nombre: cliente.nombre,
@@ -108,10 +174,17 @@ export class Prospectos {
   protected cancelarEdicion(): void {
     this.editandoId.set(null);
     this.errorEdicion.set('');
+    this.rutEdicionTocado.set(false);
   }
 
   protected guardarEdicion(): void {
-    if (this.formularioEdicion.invalid || this.guardandoEdicion()) {
+    if (this.formularioEdicion.invalid) {
+      this.marcarRutTocado('edicion');
+
+      return;
+    }
+
+    if (this.guardandoEdicion()) {
       return;
     }
 
@@ -148,10 +221,130 @@ export class Prospectos {
       });
   }
 
-  protected campoInvalido(nombre: keyof typeof this.formularioEdicion.controls): boolean {
+  protected campoInvalido(
+    nombre: keyof typeof this.formularioEdicion.controls,
+  ): boolean {
     const control = this.formularioEdicion.controls[nombre];
 
     return control.invalid && (control.dirty || control.touched);
+  }
+
+  protected campoCreacionInvalido(
+    nombre: keyof typeof this.formularioCreacion.controls,
+  ): boolean {
+    const control = this.formularioCreacion.controls[nombre];
+
+    return control.invalid && (control.dirty || control.touched);
+  }
+
+  protected mostrarCrear(): void {
+    this.editandoId.set(null);
+    this.mostrandoCrear.set(true);
+    this.errorCreacion.set('');
+    this.rutCreacionTocado.set(false);
+  }
+
+  protected cancelarCrear(): void {
+    this.mostrandoCrear.set(false);
+    this.rutCreacionTocado.set(false);
+    this.formularioCreacion.reset({
+      rut: '',
+      nombre: '',
+      email: '',
+      telefono: '',
+      tipo: 'persona natural',
+    });
+    this.errorCreacion.set('');
+  }
+
+  protected guardarCreacion(): void {
+    if (this.formularioCreacion.invalid) {
+      this.marcarRutTocado('creacion');
+
+      return;
+    }
+
+    if (this.guardandoCreacion()) {
+      return;
+    }
+
+    this.errorCreacion.set('');
+    this.guardandoCreacion.set(true);
+
+    const datos = this.formularioCreacion.getRawValue();
+
+    this.clientesService
+      .crear({
+        rut: datos.rut || undefined,
+        nombre: datos.nombre,
+        email: datos.email,
+        telefono: datos.telefono || undefined,
+        tipo: datos.tipo,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.guardandoCreacion.set(false);
+          this.cancelarCrear();
+          this.refrescar();
+        },
+        error: (err) => {
+          this.errorCreacion.set(
+            err.error?.message ?? 'No se pudo crear el prospecto.',
+          );
+          this.guardandoCreacion.set(false);
+        },
+      });
+  }
+
+  protected onRutInput(event: Event, control: 'creacion' | 'edicion'): void {
+    const input = event.target as HTMLInputElement;
+    const posInicial = input.selectionStart ?? input.value.length;
+    const textoAntesCursor = input.value.slice(0, posInicial);
+    const canonicosAntes = contarCaracteresCanonicos(textoAntesCursor);
+
+    const canonico = canonizar(input.value);
+    const { cuerpo, dv } = separar(canonico);
+    const limitado = cuerpo.slice(0, 8) + dv;
+
+    const formateado = formatear(limitado);
+
+    const grupo = control === 'creacion'
+      ? this.formularioCreacion
+      : this.formularioEdicion;
+
+    grupo.controls.rut.setValue(formateado, { emitEvent: false });
+    input.value = formateado;
+
+    let posicion = 0;
+    let canonicosVistos = 0;
+
+    while (canonicosVistos < canonicosAntes && posicion < formateado.length) {
+      if (/[0-9K]/.test(formateado[posicion].toUpperCase())) {
+        canonicosVistos++;
+      }
+      posicion++;
+    }
+
+    input.setSelectionRange(posicion, posicion);
+
+    this.revisionRut.update((valor) => valor + 1);
+  }
+
+  protected marcarRutTocado(control: 'creacion' | 'edicion'): void {
+    if (control === 'creacion') {
+      this.rutCreacionTocado.set(true);
+    } else {
+      this.rutEdicionTocado.set(true);
+    }
+
+    this.revisionRut.update((valor) => valor + 1);
+  }
+
+  private mensajeRut(control: AbstractControl): string {
+    return control.errors?.['rutIncompleto']
+      ? 'RUT incompleto, faltan digitos antes del verificador'
+      : '';
   }
 
   private refrescar(): void {

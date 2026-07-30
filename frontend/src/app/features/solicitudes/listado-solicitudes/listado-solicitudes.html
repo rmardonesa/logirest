@@ -53,6 +53,7 @@
             <th scope="col">Numero</th>
             <th scope="col">Fecha</th>
             <th scope="col">Cliente</th>
+            <th scope="col">RUT</th>
             <th scope="col">Tipo</th>
             <th scope="col">Estado</th>
             <th scope="col">Descripcion</th>
@@ -71,6 +72,7 @@
                   <span class="cliente-telefono">{{ solicitud.cliente.telefono }}</span>
                 }
               </td>
+              <td class="rut">{{ solicitud.cliente.rut ?? '—' }}</td>
               <td>{{ solicitud.tipoSolicitud }}</td>
               <td><app-estado-badge [estado]="solicitud.estado" /></td>
               <td class="descripcion">{{ solicitud.descripcion }}</td>

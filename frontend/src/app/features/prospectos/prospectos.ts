@@ -16,11 +16,19 @@ import {
 } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ClientesService } from '../../core/services/clientes.service';
+import { ClienteLookupService } from '../../core/services/cliente-lookup.service';
+import { ResultadoLookup } from '../../core/models/cliente-lookup.model';
 import { Cliente, TipoCliente } from '../../core/models/cliente.model';
 import { RespuestaPaginada } from '../../core/models/paginacion.model';
 import { Paginador } from '../../shared/components/paginador/paginador';
 import { rutValido } from '../../core/validators/rut';
-import { canonizar, separar, formatear, contarCaracteresCanonicos } from '../../core/utils/rut';
+import {
+  canonizar,
+  separar,
+  formatear,
+  estaCompleto,
+  contarCaracteresCanonicos,
+} from '../../core/utils/rut';
 
 const MILISEGUNDOS_DEBOUNCE = 300;
 
@@ -33,6 +41,7 @@ const MILISEGUNDOS_DEBOUNCE = 300;
 })
 export class Prospectos {
   private readonly clientesService = inject(ClientesService);
+  private readonly clienteLookupService = inject(ClienteLookupService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly terminoTecleado = new Subject<string>();
@@ -79,6 +88,10 @@ export class Prospectos {
   protected readonly rutCreacionTocado = signal(false);
   protected readonly rutEdicionTocado = signal(false);
   private readonly revisionRut = signal(0);
+
+  protected readonly consultandoLookup = signal(false);
+  protected readonly resultadoLookup = signal<ResultadoLookup | null>(null);
+  private ultimaConsultaLookup = '';
 
   private readonly estadoCreacion = toSignal(
     this.formularioCreacion.statusChanges,
@@ -242,11 +255,15 @@ export class Prospectos {
     this.mostrandoCrear.set(true);
     this.errorCreacion.set('');
     this.rutCreacionTocado.set(false);
+    this.resultadoLookup.set(null);
+    this.ultimaConsultaLookup = '';
   }
 
   protected cancelarCrear(): void {
     this.mostrandoCrear.set(false);
     this.rutCreacionTocado.set(false);
+    this.resultadoLookup.set(null);
+    this.ultimaConsultaLookup = '';
     this.formularioCreacion.reset({
       rut: '',
       nombre: '',
@@ -329,6 +346,50 @@ export class Prospectos {
     input.setSelectionRange(posicion, posicion);
 
     this.revisionRut.update((valor) => valor + 1);
+  }
+
+  protected consultarRegistro(): void {
+    const rut = this.formularioCreacion.controls.rut.value;
+
+    if (!estaCompleto(rut) || rut === this.ultimaConsultaLookup) {
+      return;
+    }
+
+    this.ultimaConsultaLookup = rut;
+    this.consultandoLookup.set(true);
+    this.resultadoLookup.set(null);
+
+    this.clienteLookupService
+      .consultar(rut)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resultado) => {
+          this.consultandoLookup.set(false);
+          this.resultadoLookup.set(resultado);
+
+          if (resultado.encontrado) {
+            this.rellenarDesdeLookup(resultado);
+          }
+        },
+        error: () => {
+          this.consultandoLookup.set(false);
+          this.resultadoLookup.set({
+            encontrado: false,
+            simulado: false,
+            fuente: 'externa',
+            detalle: 'No se pudo consultar el registro de clientes.',
+          });
+        },
+      });
+  }
+
+  private rellenarDesdeLookup(resultado: ResultadoLookup): void {
+    this.formularioCreacion.patchValue({
+      nombre: resultado.nombre ?? '',
+      email: resultado.email ?? '',
+      telefono: resultado.telefono ?? '',
+      tipo: (resultado.tipo as TipoCliente) ?? 'persona natural',
+    });
   }
 
   protected marcarRutTocado(control: 'creacion' | 'edicion'): void {

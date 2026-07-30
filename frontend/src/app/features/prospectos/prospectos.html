@@ -45,10 +45,13 @@
             autocapitalize="characters"
             maxlength="10"
             (input)="onRutInput($event, 'creacion')"
-            (blur)="marcarRutTocado('creacion')"
+            (blur)="marcarRutTocado('creacion'); consultarRegistro()"
           />
           @if (errorRutCreacion(); as mensaje) {
             <p class="error-campo">{{ mensaje }}</p>
+          }
+          @if (consultandoLookup()) {
+            <p class="lookup-estado">Consultando registro de clientes...</p>
           }
         </label>
 
@@ -81,6 +84,30 @@
           </select>
         </label>
       </div>
+
+      @if (resultadoLookup(); as lookup) {
+        <p
+          class="lookup-aviso"
+          [class.lookup-local]="lookup.fuente === 'local'"
+          [class.lookup-externa]="lookup.fuente === 'externa'"
+          [class.lookup-simulada]="lookup.fuente === 'simulada'"
+        >
+          <span class="lookup-fuente">
+            @switch (lookup.fuente) {
+              @case ('local') {
+                Ya registrado en logirest
+              }
+              @case ('externa') {
+                Registro externo
+              }
+              @case ('simulada') {
+                Datos simulados
+              }
+            }
+          </span>
+          {{ lookup.detalle }}
+        </p>
+      }
 
       @if (errorCreacion(); as mensaje) {
         <p class="aviso aviso-error" role="alert">{{ mensaje }}</p>
